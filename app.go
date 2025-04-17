@@ -76,6 +76,7 @@ func main() {
 	mux.Handle("/bench", handle(benchHandler, verbose))
 	mux.Handle("/api", handle(apiHandler, verbose))
 	mux.Handle("/health", handle(healthHandler, verbose))
+	mux.Handle("/log", handle(logHandler, verbose))
 	mux.Handle("/", handle(whoamiHandler, verbose))
 
 	if cert == "" || key == "" {
@@ -99,6 +100,37 @@ func main() {
 	log.Fatal(server.ListenAndServeTLS(cert, key))
 }
 
+func logHandler(w http.ResponseWriter, r *http.Request) {
+    body, err := io.ReadAll(r.Body)
+    if err != nil {
+        http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+        return
+    }
+    defer r.Body.Close()
+    // Print raw body content as string
+    // fmt.Println("Received body (raw):")
+    fmt.Println(string(body))
+    w.WriteHeader(http.StatusOK)
+}
+
+// func logHandler(w http.ResponseWriter, r *http.Request) {
+//     body, err := io.ReadAll(r.Body)
+//     if err != nil {
+//         http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+//         return
+//     }
+//     defer r.Body.Close()
+
+//     var prettyJSON bytes.Buffer
+//     if err := json.Indent(&prettyJSON, body, "", "  "); err != nil {
+//         http.Error(w, "Failed to format JSON", http.StatusBadRequest)
+//         return
+//     }
+
+//     fmt.Println("Received body:")
+//     fmt.Println(prettyJSON.String())
+//     w.WriteHeader(http.StatusOK)
+// }
 func setupMutualTLS(ca string) *tls.Config {
 	clientCACert, err := os.ReadFile(ca)
 	if err != nil {
