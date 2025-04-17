@@ -1,0 +1,48 @@
+## ========================================================
+## NOTE:
+## [17/04/2025] FORK FROM https://github.com/traefik/whoami
+## - Nhánh "master" được sử dụng để compare với dự án gốc.
+## - git checkout -b qana_master
+##       ==> sử dụng nhánh qana_master to develop.
+## ========================================================
+## ========================================================
+## [18/04/2025]
+## CHANGELOG:
+##    + ADD: /log --> to print request body to console logs.
+##    + Example: curl -X GET --url http://localhost:50963/log --data 'input_any_thing_to_output'
+## GUIDE:
+##    + local test: compose_up / compose_down
+##    + task hub_login / task image_build / task image_push
+## IMAGE PUBLISH:
+##            ==> vegacandle/whoami:v1log
+## ========================================================
+
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+
+  compose_up:
+    desc: "docker compose up"
+    cmds:
+      - docker compose up -d --build --force-recreate
+  compose_down:
+    desc: "docker compose down"
+    cmds:
+      - docker compose down
+
+  hub_login:
+    cmds:
+      - docker login --username vegacandle --password ${LOCAL_DOCKER_HUB_VEGA}
+  image_build:
+    cmds:
+      - docker build -t vegacandle/whoami:{{.IMAGE_TAG}} .
+    vars:
+      IMAGE_TAG: v1log
+  image_push:
+    cmds:
+      - docker push vegacandle/whoami:{{.IMAGE_TAG}}
+    vars:
+      IMAGE_TAG: v1log
